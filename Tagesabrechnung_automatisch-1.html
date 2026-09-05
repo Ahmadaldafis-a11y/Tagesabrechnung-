@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tagesabrechnung – L41 Georgsmarienhütte</title>
+<style>
+  :root{
+    --bg:#f5f5f7; --card:#fff; --text:#111; --muted:#6e6e73;
+    --line:#d2d2d7; --accent:#0a84ff; --danger:#ff3b30; --ok:#1b7f3a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:920px;margin:0 auto;padding:18px}
+  .top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+  h1{font-size:26px;margin:8px 0}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .card{background:var(--card);border-radius:16px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:16px;margin-bottom:16px}
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+  input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;background:#fff;color:#111}
+  input[readonly]{background:#f2f2f7;font-weight:700}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:650px}
+  th,td{border-bottom:1px solid var(--line);padding:9px 7px;text-align:right;vertical-align:middle}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:13px;color:var(--muted)}
+  .money{min-width:118px}
+  .row-total td{font-weight:800;background:#f9f9fb}
+  .negative-row td:first-child{color:var(--danger);font-weight:700}
+  .section-title{font-weight:800;margin:2px 0 10px}
+  .stack{display:grid;grid-template-columns:1fr 160px;gap:8px;align-items:center}
+  .stack + .stack{margin-top:8px}
+  .grand{font-size:18px;font-weight:900}
+  .grand input{font-size:20px;background:#eef8f0;border-color:#b9dfc2}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  button{border:0;border-radius:11px;padding:11px 15px;font-size:15px;font-weight:700;cursor:pointer}
+  .primary{background:var(--accent);color:#fff}
+  .secondary{background:#e9e9ee;color:#111}
+  .danger{background:#fff0ef;color:#b42318}
+  .note{font-size:13px;color:var(--muted);line-height:1.4;margin-top:10px}
+  .formula{font-size:12px;color:var(--muted);margin-top:4px}
+  @media(max-width:620px){.meta{grid-template-columns:1fr}.wrap{padding:12px}.card{border-radius:13px}.stack{grid-template-columns:1fr 135px}}
+  @media print{
+    body{background:#fff}.wrap{max-width:none;padding:0}.card{box-shadow:none;border:1px solid #bbb}.actions{display:none}
+    input{border:0;padding:3px;background:#fff!important}.sub{margin-bottom:8px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Tagesabrechnung</h1>
+      <div class="sub">Filiale L41 Georgsmarienhütte</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="meta">
+      <div><label>Datum</label><input id="datum" type="date"></div>
+      <div><label>Name</label><input id="name" type="text" placeholder="Name"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Kassen / Umsatz</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>7 % inkl. MwSt.</th>
+            <th>19 % inkl. MwSt.</th>
+            <th>Summe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Kasse 1</td>
+            <td><input class="money calc" id="k1_7" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money calc" id="k1_19" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money" id="k1_sum" readonly></td>
+          </tr>
+          <tr>
+            <td>Kasse 2</td>
+            <td><input class="money calc" id="k2_7" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money calc" id="k2_19" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money" id="k2_sum" readonly></td>
+          </tr>
+          <tr>
+            <td>Kasse 3</td>
+            <td><input class="money calc" id="k3_7" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money calc" id="k3_19" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money" id="k3_sum" readonly></td>
+          </tr>
+          <tr class="negative-row">
+            <td>Fehlbons (und Gutscheine bis 2017) −</td>
+            <td><input class="money calc" id="fehl_7" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money calc" id="fehl_19" inputmode="decimal" placeholder="0,00"></td>
+            <td><input class="money" id="fehl_sum" readonly></td>
+          </tr>
+          <tr class="row-total">
+            <td>Summe Umsatz</td>
+            <td><input class="money" id="umsatz_7" readonly></td>
+            <td><input class="money" id="umsatz_19" readonly></td>
+            <td><input class="money" id="umsatz_sum" readonly></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="formula">Fehlbons werden automatisch von den Kassenumsätzen abgezogen.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Abzüge / Gesamtsumme</div>
+    <div class="stack"><div>EC-Cash</div><input class="calc" id="ec" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Gutscheine (ab 2018)</div><input class="calc" id="gutschein" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Einkauf</div><input class="calc" id="einkauf" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack grand"><div>Gesamtsumme</div><input id="gesamt" readonly></div>
+    <div class="formula">Gesamtsumme = Summe Umsatz − EC-Cash − Gutscheine − Einkauf</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Weitere Angaben</div>
+    <div class="stack"><div>Entnahme Kleingeld</div><input id="kleingeld" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Bareinzahlung Bank</div><input id="bank" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Wechselgeld gezählt – Vortag</div><input class="calc" id="vortag" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Wechselgeld gezählt – Heute</div><input class="calc" id="heute" inputmode="decimal" placeholder="0,00"></div>
+    <div class="stack"><div>Differenz (+/−)</div><input id="differenz" readonly></div>
+    <div class="formula">Differenz = Heute − Vortag</div>
+  </div>
+
+  <div class="card">
+    <label>Anmerkungen</label>
+    <input id="anmerkung" type="text" placeholder="Optional">
+    <div class="actions" style="margin-top:14px">
+      <button class="primary" onclick="window.print()">Drucken / als PDF sichern</button>
+      <button class="secondary" onclick="saveLocal()">Daten speichern</button>
+      <button class="danger" onclick="resetForm()">Alles löschen</button>
+    </div>
+    <div class="note">Die Eingaben werden bei „Daten speichern“ nur auf diesem Gerät im Browser gespeichert.</div>
+  </div>
+</div>
+
+<script>
+const ids = ["k1_7","k1_19","k2_7","k2_19","k3_7","k3_19","fehl_7","fehl_19","ec","gutschein","einkauf","kleingeld","bank","vortag","heute"];
+
+function num(id){
+  let v = document.getElementById(id).value.trim().replace(/\s/g,"").replace(/\./g,"").replace(",",".");
+  let n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+function eur(n){
+  return n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+}
+function calc(){
+  const k1_7=num("k1_7"), k1_19=num("k1_19");
+  const k2_7=num("k2_7"), k2_19=num("k2_19");
+  const k3_7=num("k3_7"), k3_19=num("k3_19");
+  const f7=num("fehl_7"), f19=num("fehl_19");
+
+  const u7 = k1_7+k2_7+k3_7-f7;
+  const u19 = k1_19+k2_19+k3_19-f19;
+  const us = u7+u19;
+
+  document.getElementById("k1_sum").value=eur(k1_7+k1_19);
+  document.getElementById("k2_sum").value=eur(k2_7+k2_19);
+  document.getElementById("k3_sum").value=eur(k3_7+k3_19);
+  document.getElementById("fehl_sum").value=eur(f7+f19);
+  document.getElementById("umsatz_7").value=eur(u7);
+  document.getElementById("umsatz_19").value=eur(u19);
+  document.getElementById("umsatz_sum").value=eur(us);
+
+  const gesamt = us - num("ec") - num("gutschein") - num("einkauf");
+  document.getElementById("gesamt").value=eur(gesamt);
+
+  const diff = num("heute")-num("vortag");
+  document.getElementById("differenz").value=(diff>=0?"+":"")+eur(diff);
+}
+document.querySelectorAll(".calc").forEach(el=>el.addEventListener("input",calc));
+
+function saveLocal(){
+  const all = ["datum","name",...ids,"anmerkung"];
+  let o={}; all.forEach(id=>o[id]=document.getElementById(id).value);
+  localStorage.setItem("tagesabrechnung_l41",JSON.stringify(o));
+  alert("Gespeichert.");
+}
+function loadLocal(){
+  const s=localStorage.getItem("tagesabrechnung_l41");
+  if(s){
+    try{
+      const o=JSON.parse(s);
+      Object.entries(o).forEach(([id,v])=>{const el=document.getElementById(id); if(el) el.value=v;});
+    }catch(e){}
+  }
+  if(!document.getElementById("datum").value){
+    const d=new Date(); document.getElementById("datum").value=d.toISOString().slice(0,10);
+  }
+  calc();
+}
+function resetForm(){
+  if(!confirm("Wirklich alle Eingaben löschen?")) return;
+  localStorage.removeItem("tagesabrechnung_l41");
+  document.querySelectorAll("input").forEach(el=>{if(!el.readOnly) el.value="";});
+  const d=new Date(); document.getElementById("datum").value=d.toISOString().slice(0,10);
+  calc();
+}
+loadLocal();
+</script>
+</body>
+</html>
